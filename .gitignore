@@ -1,0 +1,16 @@
+# Build outputs
+build/
+*.o
+*.exe
+*.out
+
+# Logs
+run_log.csv
+run_*.csv
+run_*_stats.txt
+sweep_*.csv
+sweep_*_stats.txt
+
+# OS/Editor noise
+.DS_Store
+.vscode/
