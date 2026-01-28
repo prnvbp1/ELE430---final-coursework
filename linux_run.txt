@@ -1,42 +1,78 @@
-PERFORMANCE + ANALYSIS INSTRUCTIONS (Copy/Paste for GitHub)
-==========================================================
+LINUX MINT (VM) INSTRUCTIONS: BUILD + EVIDENCE + PERFORMANCE ANALYSIS
+====================================================================
 
-These steps generate the evidence needed BEFORE report writing:
-- Two required evidence runs (with saved logs + saved terminal stats)
-- A queue-size (FIFO capacity) sweep for a recommended Q
-- A simple results table setup (manual or optional scripted)
+Project layout (as used here):
+- Makefile in project root
+- header/ contains all .h files
+- source/ contains all .c files
 
-Assumptions:
-- You are running on Linux Mint (or WSL).
-- Project root contains: Makefile and src/
-- The program outputs run_log.csv in the current directory.
+This guide is written so you can copy/paste commands directly in the VM terminal.
+
 
 ------------------------------------------------------------
 0) One-time setup (Linux Mint)
 ------------------------------------------------------------
-Install build tools:
+Install tools:
   sudo apt update
-  sudo apt install -y build-essential make git
+  sudo apt install -y build-essential make git dos2unix
 
-(Only if code was edited on Windows and you suspect CRLF line endings):
-  sudo apt install -y dos2unix
+Go to your project folder (adjust if your folder name differs):
+  cd ~/Downloads/ELE430---final-coursework-main
+
+Confirm you are in the correct place:
+  ls -la
+You should see: Makefile  header/  source/
+
+
+------------------------------------------------------------
+1) Makefile (must match header/ + source/)
+------------------------------------------------------------
+Open your Makefile and ensure it uses:
+- SRC_DIR := source
+- INC_DIR := header
+- INCLUDE := -I$(INC_DIR)
+
+If your Makefile is already correct, skip this.
+
+Quick check:
+  grep -n "SRC_DIR\|INC_DIR\|INCLUDE" Makefile
+
+
+------------------------------------------------------------
+2) Normalize line endings (recommended if you edited on Windows)
+------------------------------------------------------------
+Run once (safe even if already LF):
   find . -type f \( -name "*.c" -o -name "*.h" -o -name "Makefile" -o -name "*.sh" -o -name "*.txt" \) -print0 | xargs -0 dos2unix
 
-Build cleanly:
+
+------------------------------------------------------------
+PR0) Foundation check on Linux Mint (build + smoke test)
+------------------------------------------------------------
+Clean + build release:
   make clean
   make
+
+Build debug:
   make debug
 
-Quick smoke test:
+Run a short smoke test (5 seconds):
   make run ARGS="-p 5 -c 3 -q 10 -t 5 -v"
-Check:
+
+Confirm log created and looks sane:
   ls -l run_log.csv
   head -n 10 run_log.csv
+  tail -n 5 run_log.csv
+
+PR0 is DONE when:
+- build succeeds (release + debug)
+- run exits after ~timeout seconds
+- run_log.csv exists and includes a RUN_END line
+
 
 ------------------------------------------------------------
-PR1) Two evidence runs (save logs + terminal stats)
+PR1) Two evidence runs (required logs + saved terminal stats)
 ------------------------------------------------------------
-Create folders:
+Create folder for evidence outputs:
   mkdir -p evidence
 
 Run A (balanced):
@@ -53,24 +89,76 @@ Sanity checks:
   tail -n 5 evidence/run_A_p5_c3_q10_t20.csv
   tail -n 5 evidence/run_B_p10_c1_q3_t20.csv
 
-You should see a RUN_END event, and the program should terminate after ~timeout seconds.
+PR1 is DONE when:
+- you have 2 CSV logs + 2 stats text files in evidence/
+- both CSV logs contain RUN_END and are not empty
+
 
 ------------------------------------------------------------
 PR2) Queue-capacity sweep (for FIFO size recommendation)
 ------------------------------------------------------------
 Goal:
-- Recommend a queue size Q for a realistic configuration (e.g. P >= 5, C = 3 or 4).
-Method:
-- Fix P, C, timeout; sweep Q across multiple values.
-- Save logs and saved terminal stats for every run.
+Recommend a queue size Q for a realistic configuration (P >= 5, C = 3 or 4).
 
-Create folder:
+Create folder for sweep outputs:
   mkdir -p sweep
 
-Example sweep for P=5, C=3, timeout=20 seconds:
+Sweep for P=5, C=3, timeout=20 seconds:
   for q in 1 2 3 4 5 8 10 15 20; do
     make run ARGS="-p 5 -c 3 -q $q -t 20" | tee "sweep/sweep_p5_c3_q${q}_t20_stats.txt"
     cp run_log.csv "sweep/sweep_p5_c3_q${q}_t20.csv"
   done
 
-Optional: run a second sweep
+Optional second sweep for C=4:
+  for q in 1 2 3 4 5 8 10 15 20; do
+    make run ARGS="-p 5 -c 4 -q $q -t 20" | tee "sweep/sweep_p5_c4_q${q}_t20_stats.txt"
+    cp run_log.csv "sweep/sweep_p5_c4_q${q}_t20.csv"
+  done
+
+PR2 is DONE when:
+- sweep/ contains multiple CSV logs + stats files for different Q values
+- none of them were overwritten (each Q has its own file)
+
+
+------------------------------------------------------------
+PR3) Results summary table (report-ready)
+------------------------------------------------------------
+Minimum table columns to record for each Q:
+- Q
+- Throughput (items/sec)
+- Produced ops
+- Consumed ops
+- Producer blocked ms and blocked events
+- Consumer blocked ms and blocked events
+- Max queue occupancy observed
+
+Manual method:
+- Open each sweep/sweep_*_stats.txt
+- Copy the RUN STATS values into a spreadsheet
+- Export as results_summary.csv
+
+Recommended interpretation for choosing Q:
+- Choose the smallest Q that achieves near-maximum throughput
+- Producer blocking is low (blocked_ms/events reduced)
+- Queue is not constantly saturated (max_q is not always == Q)
+
+
+------------------------------------------------------------
+PR4) Suggested plots for the report (from collected logs)
+------------------------------------------------------------
+At minimum, produce:
+1) Throughput vs Q (from results_summary.csv)
+2) Producer blocked time vs Q (from results_summary.csv)
+Optional:
+3) Queue occupancy over time (from one CSV log using time_ms and q_count)
+
+
+------------------------------------------------------------
+Definition of “ready to write the report”
+------------------------------------------------------------
+You are ready to start report writing when you have:
+- evidence/run_A_p5_c3_q10_t20.csv + evidence/run_A_stats.txt
+- evidence/run_B_p10_c1_q3_t20.csv + evidence/run_B_stats.txt
+- sweep/ logs for multiple Q values (>= 7 different Q values)
+- a results_summary.csv table (manual or scripted)
+- at least 2 plots OR a clear plan to produce them from the collected data
