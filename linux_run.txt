@@ -1,0 +1,76 @@
+PERFORMANCE + ANALYSIS INSTRUCTIONS (Copy/Paste for GitHub)
+==========================================================
+
+These steps generate the evidence needed BEFORE report writing:
+- Two required evidence runs (with saved logs + saved terminal stats)
+- A queue-size (FIFO capacity) sweep for a recommended Q
+- A simple results table setup (manual or optional scripted)
+
+Assumptions:
+- You are running on Linux Mint (or WSL).
+- Project root contains: Makefile and src/
+- The program outputs run_log.csv in the current directory.
+
+------------------------------------------------------------
+0) One-time setup (Linux Mint)
+------------------------------------------------------------
+Install build tools:
+  sudo apt update
+  sudo apt install -y build-essential make git
+
+(Only if code was edited on Windows and you suspect CRLF line endings):
+  sudo apt install -y dos2unix
+  find . -type f \( -name "*.c" -o -name "*.h" -o -name "Makefile" -o -name "*.sh" -o -name "*.txt" \) -print0 | xargs -0 dos2unix
+
+Build cleanly:
+  make clean
+  make
+  make debug
+
+Quick smoke test:
+  make run ARGS="-p 5 -c 3 -q 10 -t 5 -v"
+Check:
+  ls -l run_log.csv
+  head -n 10 run_log.csv
+
+------------------------------------------------------------
+PR1) Two evidence runs (save logs + terminal stats)
+------------------------------------------------------------
+Create folders:
+  mkdir -p evidence
+
+Run A (balanced):
+  make run ARGS="-p 5 -c 3 -q 10 -t 20 -v" | tee evidence/run_A_stats.txt
+  cp run_log.csv evidence/run_A_p5_c3_q10_t20.csv
+
+Run B (stress / blocking):
+  make run ARGS="-p 10 -c 1 -q 3 -t 20 -v" | tee evidence/run_B_stats.txt
+  cp run_log.csv evidence/run_B_p10_c1_q3_t20.csv
+
+Sanity checks:
+  wc -l evidence/run_A_p5_c3_q10_t20.csv
+  wc -l evidence/run_B_p10_c1_q3_t20.csv
+  tail -n 5 evidence/run_A_p5_c3_q10_t20.csv
+  tail -n 5 evidence/run_B_p10_c1_q3_t20.csv
+
+You should see a RUN_END event, and the program should terminate after ~timeout seconds.
+
+------------------------------------------------------------
+PR2) Queue-capacity sweep (for FIFO size recommendation)
+------------------------------------------------------------
+Goal:
+- Recommend a queue size Q for a realistic configuration (e.g. P >= 5, C = 3 or 4).
+Method:
+- Fix P, C, timeout; sweep Q across multiple values.
+- Save logs and saved terminal stats for every run.
+
+Create folder:
+  mkdir -p sweep
+
+Example sweep for P=5, C=3, timeout=20 seconds:
+  for q in 1 2 3 4 5 8 10 15 20; do
+    make run ARGS="-p 5 -c 3 -q $q -t 20" | tee "sweep/sweep_p5_c3_q${q}_t20_stats.txt"
+    cp run_log.csv "sweep/sweep_p5_c3_q${q}_t20.csv"
+  done
+
+Optional: run a second sweep
