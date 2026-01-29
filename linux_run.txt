@@ -112,7 +112,7 @@ Sweep for P=5, C=3, timeout=20 seconds:
 Optional second sweep for C=4:
   for q in 1 2 3 4 5 8 10 15 20; do
     make run ARGS="-p 5 -c 4 -q $q -t 20" | tee "sweep/sweep_p5_c4_q${q}_t20_stats.txt"
-    cp run_log.csv "sweep/sweep_p5_c4_q${q}_t20.csv"
+    cp run_log.csv "sweep2/sweep_p5_c4_q${q}_t20.csv"
   done
 
 PR2 is DONE when:
