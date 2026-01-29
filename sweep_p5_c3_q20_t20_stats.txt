@@ -1,0 +1,36 @@
+./build/learn_cw -p 5 -c 3 -q 20 -t 20
+=== ELE430 Producer-Consumer Model Run Summary ===
+Time/Date: 2026-01-29 00:27:26
+User@Host: pranav@pranav-VirtualBox
+
+-- Run-time parameters (CLI) --
+Producers: 5
+Consumers: 3
+Queue cap: 20
+Timeout : 20 s
+Verbose : OFF
+
+-- Compiled model parameters (defaults) --
+PRODUCER_WAIT_MAX_SEC = 2
+CONSUMER_WAIT_MAX_SEC = 4
+MAX_PRODUCERS         = 10
+MAX_CONSUMERS         = 3
+RAND_VALUE_RANGE      = [0..9]
+
+-- Initial state --
+Queue: EMPTY (initial)
+Producers: NOT STARTED
+Consumers: NOT STARTED
+=================================================
+
+
+=== RUN STATS ===
+Produced ops : 41
+Consumed ops : 21
+Runtime      : 20.260 s
+Throughput   : 1.037 items/sec
+Prod blocked : 9483 ms across 4 events
+Cons blocked : 0 ms across 0 events
+Max queue q  : 20
+=============
+

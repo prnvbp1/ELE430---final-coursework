@@ -1,0 +1,64 @@
+# producers=5 consumers=3 q=8 timeout=20 verbose=0
+# build_type=unknown
+# build_datetime=Jan 28 2026 23:56:55
+# compiler=13.3.0
+time_ms,event,actor_type,actor_id,value,priority,producer_id,q_count,blocked_ms
+0,RUN_START,M,0,-1,-1,-1,0,0
+# defaults PRODUCER_WAIT_MAX_SEC=2 CONSUMER_WAIT_MAX_SEC=4 RAND_VALUE_RANGE=[0..9]
+0,C_START,C,0,-1,-1,-1,0,0
+0,P_START,P,0,-1,-1,-1,0,0
+0,C_START,C,1,-1,-1,-1,1,0
+0,P_START,P,1,-1,-1,-1,1,0
+0,C_READ,C,1,5,0,0,0,0
+0,P_WRITE,P,0,5,0,0,1,0
+0,P_WRITE,P,1,8,1,1,1,0
+1,C_START,C,2,-1,-1,-1,1,0
+1,C_READ,C,2,8,1,1,0,0
+1,P_START,P,4,-1,-1,-1,1,0
+1,P_WRITE,P,4,1,4,4,1,0
+1,P_START,P,3,-1,-1,-1,1,0
+1,P_WRITE,P,3,0,3,3,2,0
+1,P_WRITE,P,3,6,3,3,3,0
+1,P_WRITE,P,3,4,3,3,4,0
+1,P_WRITE,P,3,9,3,3,5,0
+1,P_START,P,2,-1,-1,-1,1,0
+1,P_WRITE,P,2,6,2,2,6,0
+1,P_WRITE,P,2,2,2,2,7,0
+1,P_WRITE,P,2,3,2,2,8,0
+1,C_READ,C,0,1,4,4,7,1
+1,C_READ,C,0,0,3,3,6,0
+1,P_WRITE,P,2,7,2,2,7,0
+2610,P_WRITE,P,4,7,4,4,8,0
+3579,C_READ,C,2,7,4,4,7,0
+3579,P_WRITE,P,2,6,2,2,8,114
+3959,C_READ,C,0,6,3,3,7,0
+3959,P_WRITE,P,2,8,2,2,8,380
+4589,C_READ,C,2,4,3,3,7,0
+4589,P_WRITE,P,1,3,1,1,8,598
+6434,C_READ,C,1,9,3,3,7,0
+6434,P_WRITE,P,4,7,4,4,8,1805
+7988,C_READ,C,2,7,4,4,7,0
+7988,P_WRITE,P,3,4,3,3,8,3242
+8473,C_READ,C,1,4,3,3,7,0
+8474,P_WRITE,P,3,6,3,3,8,486
+12808,C_READ,C,2,6,3,3,7,0
+12808,P_WRITE,P,4,4,4,4,8,6374
+14545,C_READ,C,0,4,4,4,7,0
+14545,P_WRITE,P,4,6,4,4,8,1737
+18634,C_READ,C,1,6,4,4,7,0
+18634,P_WRITE,P,2,3,2,2,8,9913
+19832,P_WRITE,P,3,0,3,3,8,3400
+19832,C_READ,C,2,6,2,2,8,0
+19832,C_READ,C,2,0,3,3,7,0
+19833,P_WRITE,P,0,8,0,0,8,11317
+20063,STOP_SET_TIMEOUT,M,0,-1,-1,-1,8,0
+20063,C_EXIT,C,2,-1,-1,-1,8,0
+20063,P_EXIT,P,4,-1,-1,-1,8,0
+20064,P_EXIT,P,2,-1,-1,-1,8,0
+20064,P_EXIT,P,1,-1,-1,-1,8,0
+20118,C_EXIT,C,0,-1,-1,-1,8,0
+20124,C_EXIT,C,1,-1,-1,-1,8,0
+20243,P_EXIT,P,3,-1,-1,-1,8,0
+20749,P_EXIT,P,0,-1,-1,-1,8,0
+# summary start_failed=0 started_producers=5 started_consumers=3 prod_ops=23 cons_ops=15 runtime_s=20.749 throughput=0.723 prod_block_ms=39366 prod_block_ev=11 cons_block_ms=1 cons_block_ev=1 max_q=8
+20749,RUN_END,M,0,-1,-1,-1,8,0
